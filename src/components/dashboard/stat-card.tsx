@@ -11,33 +11,34 @@ interface StatCardProps {
 }
 
 const colorClasses = {
-  default: 'text-gray-600',
-  blue: 'text-primary',
-  green: 'text-accent-green',
-  orange: 'text-accent-orange',
-  purple: 'text-accent-purple',
+  default: 'text-brand-dark',
+  blue: 'text-brand-primary',
+  green: 'text-brand-primary',
+  orange: 'text-brand-dark',
+  purple: 'text-brand-primary',
 };
 
 const iconBgClasses = {
-  default: 'bg-gray-100',
-  blue: 'bg-blue-50',
-  green: 'bg-green-50',
-  orange: 'bg-orange-50',
-  purple: 'bg-purple-50',
+  default: '',
+  blue: '',
+  green: '',
+  orange: '',
+  purple: '',
 };
 
 export function StatCard({ label, value, sublabel, icon, color = 'default' }: StatCardProps) {
   return (
-    <NeoCard className="flex flex-col">
+    <NeoCard className="flex flex-col h-full relative overflow-hidden">
+      <div className="neo-top-accent"></div>
       {icon && (
-        <div className={`w-10 h-10 rounded-xl ${iconBgClasses[color]} flex items-center justify-center mb-3`}>
-          <span className={colorClasses[color]}>{icon}</span>
+        <div className={`w-12 h-12 neo-inset-circle flex items-center justify-center mb-4 ${colorClasses[color]}`}>
+          {icon}
         </div>
       )}
       <span className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
         {label}
       </span>
-      <span className={`text-3xl font-bold ${colorClasses[color]}`}>
+      <span className={`text-3xl font-bold text-black`}>
         {value}
       </span>
       {sublabel && (

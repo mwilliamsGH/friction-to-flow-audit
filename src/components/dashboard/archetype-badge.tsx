@@ -2,6 +2,7 @@
 
 import { ARCHETYPES } from '@/lib/constants';
 import { ArchetypeId } from '@/types';
+import { BRAND_GRADIENT, BRAND_COLORS } from '@/lib/colors';
 
 interface ArchetypeBadgeProps {
   archetypeId: ArchetypeId;
@@ -43,15 +44,14 @@ export function ArchetypeBadge({
           inline-block ${sizeClasses[size].badge} rounded-full font-semibold uppercase tracking-wider mb-2
         `}
         style={{
-          backgroundColor: `${archetype.color}20`,
-          color: archetype.color
+          background: BRAND_GRADIENT,
+          color: 'white'
         }}
       >
         Your Archetype
       </span>
       <h2
         className={`${sizeClasses[size].title} font-bold text-gray-900 mb-1`}
-        style={{ color: archetype.color }}
       >
         {archetype.name}
       </h2>
@@ -66,13 +66,14 @@ export function ArchetypeBadge({
 
 interface ArchetypeAvatarProps {
   archetypeId: ArchetypeId;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 const avatarSizes = {
   sm: 'w-12 h-12',
   md: 'w-20 h-20',
   lg: 'w-28 h-28',
+  xl: 'w-40 h-40',
 };
 
 export function ArchetypeAvatar({ archetypeId, size = 'md' }: ArchetypeAvatarProps) {
@@ -126,8 +127,7 @@ export function ArchetypeAvatar({ archetypeId, size = 'md' }: ArchetypeAvatarPro
 
   return (
     <div
-      className={`${avatarSizes[size]} rounded-2xl neo-card flex items-center justify-center`}
-      style={{ backgroundColor: `${archetype.color}15` }}
+      className={`${avatarSizes[size]} flex items-center justify-center`}
     >
       <span style={{ color: archetype.color }}>
         {getAvatarIcon()}

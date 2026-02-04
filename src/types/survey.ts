@@ -8,7 +8,8 @@ export type QuestionType =
   | 'multi-select'
   | 'slider'
   | 'textarea'
-  | 'percentage-allocation';
+  | 'percentage-allocation'
+  | 'friction-hours-allocation';
 
 export interface QuestionOption {
   value: string;
@@ -45,6 +46,10 @@ export interface QuestionConfig {
     showWhenHasValue?: boolean;
   };
   categories?: string[];
+  // Key for storing "Other (specify)" text when user selects "other" option
+  otherKey?: string;
+  // Key for storing dynamically calculated friction hours (for friction-hours-allocation type)
+  frictionSourceKey?: string;
 }
 
 export type SurveySection = 'foundation' | 'friction' | 'ai-sentiment' | 'magic-button';
@@ -58,22 +63,29 @@ export interface SectionConfig {
   questions: string[];
 }
 
+// Type for storing per-friction hour allocations
+export type FrictionHours = Record<string, number>;
+
 export interface SurveyResponses {
   q1_name: string;
   q2_email: string;
   q3_role: string;
+  q3_role_other?: string;
   q4_tenure: string;
   q5_tools: string[];
+  q5_tools_other?: string;
   q6_tech_walls: string[];
+  q6_tech_walls_other?: string;
   q7_work_type: string;
   q8_primary_client: string;
   q9_slowdown: string;
+  q9_slowdown_other?: string;
   q10_knowledge_storage: string;
   q11_research_habits: string;
   q12_workload: number;
   q13_friction_types: string[];
-  q14_worst_friction_hours: number;
-  q15_total_friction_hours: number;
+  q13_friction_types_other?: string;
+  q14_friction_hours: FrictionHours;
   q16_time_allocation: TimeAllocation;
   q17_specific_task: string;
   q18_repeated_task: string;
@@ -88,6 +100,7 @@ export interface SurveyResponses {
   q27_adoption_speed: string;
   q28_ai_role: string;
   q29_ai_concerns: string[];
+  q29_ai_concerns_other?: string;
   q30_sacred: string;
   q31_working_ai_tools: string;
   q32_learning_style: string;

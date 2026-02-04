@@ -94,10 +94,10 @@ const PercentageAllocation = ({
 
   const getCategoryColor = (index: number) => {
     const colors = [
-      { bg: 'bg-primary', light: 'bg-blue-100' },
-      { bg: 'bg-accent-green', light: 'bg-green-100' },
-      { bg: 'bg-accent-orange', light: 'bg-orange-100' },
-      { bg: 'bg-accent-purple', light: 'bg-purple-100' },
+      { bg: 'bg-brand-primary', light: 'bg-brand-lightest' },
+      { bg: 'bg-brand-dark', light: 'bg-brand-light' },
+      { bg: 'bg-brand-medium', light: 'bg-brand-light' },
+      { bg: 'bg-brand-light', light: 'bg-brand-lightest' },
     ];
     return colors[index];
   };

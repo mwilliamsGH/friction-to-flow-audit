@@ -217,8 +217,8 @@ export default function SurveyCompletePage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <NeoCard padding="xl" className="max-w-lg w-full text-center">
-          <div className="w-16 h-16 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 mx-auto mb-6 bg-brand-lightest rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-brand-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
@@ -245,8 +245,8 @@ export default function SurveyCompletePage() {
           {/* Animated icon */}
           <div className="relative w-24 h-24 mx-auto mb-8">
             {stage === 'complete' ? (
-              <div className="w-full h-full bg-green-100 rounded-full flex items-center justify-center animate-scale-in">
-                <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-full h-full bg-brand-lightest rounded-full flex items-center justify-center animate-scale-in">
+                <svg className="w-12 h-12 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
@@ -275,7 +275,7 @@ export default function SurveyCompletePage() {
             max={100}
             showValue
             size="lg"
-            color={stage === 'complete' ? 'green' : 'primary'}
+            color="primary"
             className="mb-8"
           />
 
@@ -291,7 +291,7 @@ export default function SurveyCompletePage() {
                   <div
                     className={`
                       w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all
-                      ${isComplete ? 'bg-green-100 text-green-600' : isCurrent ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'}
+                      ${isComplete ? 'bg-brand-lightest text-brand-primary' : isCurrent ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'}
                     `}
                   >
                     {isComplete ? (
@@ -312,8 +312,8 @@ export default function SurveyCompletePage() {
 
           {/* Completion message */}
           {stage === 'complete' && (
-            <div className="mt-8 p-4 bg-green-50 rounded-xl border border-green-200">
-              <p className="text-green-700 font-medium">
+            <div className="mt-8 p-4 bg-brand-lightest rounded-xl border border-brand-light">
+              <p className="text-brand-dark font-medium">
                 Your personalized AI audit is ready! Redirecting to your dashboard...
               </p>
             </div>

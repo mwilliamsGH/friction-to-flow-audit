@@ -2,7 +2,9 @@
 // Orchestrates: archetype scoring, toolkit recommendations, automation opportunities, narrative generation
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { z } from 'zod';
+import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase';
+import { RateLimiter } from '@/lib/rate-limiter';
 import { generateJsonContent, TIMEOUT_MS } from '@/lib/gemini';
 import { determineArchetype, getArchetypeScoringDetails } from '@/lib/archetype-scoring';
 import { calculateAllMetrics } from '@/lib/survey-calculations';
@@ -15,6 +17,14 @@ import {
   SurveyResponse,
   AIOutput,
 } from '@/types';
+
+// Rate limiter: 3 requests per 60 minutes per user
+const generateRateLimiter = new RateLimiter(3, 60 * 60 * 1000);
+
+// Zod schema for request validation
+const generateRequestSchema = z.object({
+  responseId: z.string().uuid('Invalid responseId format'),
+});
 
 // Request body type
 interface GenerateRequest {
@@ -44,7 +54,6 @@ const FALLBACK_TOOLKIT: ToolkitRecommendations = {
   toolkit: [
     {
       tool: 'NotebookLM',
-      subtitle: 'Research Hub',
       use_cases: [
         'Upload brand guidelines for quick reference',
         'Generate audio summaries of lengthy documents',
@@ -53,8 +62,7 @@ const FALLBACK_TOOLKIT: ToolkitRecommendations = {
       why_this_matters: 'Reduces time spent searching for information.',
     },
     {
-      tool: 'Claude / Gemini / ChatGPT / Perplexity',
-      subtitle: 'AI Assistant Suite',
+      tool: 'Claude / Gemini / ChatGPT',
       use_cases: [
         'Draft and edit written content quickly',
         'Research competitors and industry trends',
@@ -64,7 +72,6 @@ const FALLBACK_TOOLKIT: ToolkitRecommendations = {
     },
     {
       tool: 'AI Studio',
-      subtitle: 'Custom Tool Builder',
       use_cases: [
         'Build internal utilities for common calculations',
         'Create workflow tools without coding',
@@ -74,7 +81,6 @@ const FALLBACK_TOOLKIT: ToolkitRecommendations = {
     },
     {
       tool: 'Claude Cowork',
-      subtitle: 'Desktop Automation',
       use_cases: [
         'Batch rename and organize files automatically',
         'Extract data from documents into structured formats',
@@ -84,7 +90,6 @@ const FALLBACK_TOOLKIT: ToolkitRecommendations = {
     },
     {
       tool: 'Custom Agents',
-      subtitle: 'Personalized AI',
       use_cases: [
         'Create a brand voice assistant with your guidelines',
         'Build client-specific experts for quick answers',
@@ -148,7 +153,8 @@ function buildToolkitPrompt(
 - Primary Client: ${responses.q8_primary_client || 'Various clients'}
 - Work Type: ${responses.q7_work_type || 'Mix of everything'}
 - Top Friction Types: ${(responses.q13_friction_types || []).join(', ') || 'Various friction points'}
-- Weekly Friction Hours: ${responses.q15_total_friction_hours || 0}
+- Weekly Friction Hours: ${responses.q14_friction_hours ? Object.values(responses.q14_friction_hours).reduce((a, b) => a + b, 0) : 0}
+- Per-Friction Hours: ${responses.q14_friction_hours ? Object.entries(responses.q14_friction_hours).map(([k, v]) => `${k}: ${v}h`).join(', ') : 'Not specified'}
 - Repeated Tasks: ${responses.q18_repeated_task || 'Not specified'}
 - Handoff Pain Points: ${responses.q19_handoff_pain || 'Not specified'}
 - Manual Data Movement: ${responses.q21_data_movement || 'Not specified'}
@@ -164,41 +170,60 @@ function buildToolkitPrompt(
 
 ## The 5 Tools (MUST recommend all)
 
-1. **NotebookLM** - RAG research hub for ingesting documents and generating audio summaries, mind maps, briefings
-2. **Claude / Gemini / ChatGPT / Perplexity** - General AI assistants for writing, research, brainstorming, image generation
+1. **NotebookLM** - RAG research hub for ingesting documents, generating audio summaries, creating data tables, building slide decks and infographics
+2. **Claude / Gemini / ChatGPT** - General AI assistants for writing, research, brainstorming, image generation, video generation, deep research
 3. **AI Studio (Vibe Coding)** - Build custom internal tools and utilities through natural language
-4. **Claude Cowork** - Desktop agent for file management, batch processing, document creation
-5. **Custom Agents** - Claude Projects, Custom GPTs, Gemini Gems for repeated workflows with uploaded context
+4. **Claude Cowork** - Desktop agent for file management, batch processing, document creation, visual automation
+5. **Custom Agents** - Claude Projects, Custom GPTs, Gemini Gems for repeated workflows with uploaded context (can include NotebookLM notebooks)
 
 ## Base Use Cases Reference
 
 ### NotebookLM
 - Upload brand guidelines for instant compliance answers
-- Generate audio briefings for freelancers or new team members
-- Create searchable archive of past campaign rationales
+- Generate interactive audio briefings you can join mid-conversation to ask follow-up questions
+- Convert messy research into structured Data Tables exported to Google Sheets
+- Auto-generate presentation slide decks from campaign briefs with speaker notes
+- Create infographics from dense documents for executive summaries
 - Build FAQ from lengthy client documentation
 - Cross-reference multiple briefs to find conflicts
+- Upload client interview transcripts and extract structured quote tables organized by theme
+- Create video overviews with AI hosts discussing your content visually
+- Join audio debates to test objection handling before client meetings
 
-### Claude / Gemini / ChatGPT / Perplexity
+### Claude / Gemini / ChatGPT
 - Draft client emails from rough notes (Claude)
-- Quick competitive research with citations (Perplexity)
+- Generate product demo videos or social content using Veo (Gemini)
+- Create brand-consistent product mockups and marketing visuals using Imagen (Gemini)
+- Run Deep Research with autonomous research plans and citations (Gemini/ChatGPT)
 - Generate mockup variations before full production (ChatGPT)
 - Research industry trends with current data (Gemini)
 - Brainstorm campaign concepts with constraints
+- Hybrid workflows: ChatGPT ideation → Claude refinement → Gemini visual assets
+- Create social media graphics that match brand guidelines
+- Generate video ads or explainer content for campaigns
 
 ### AI Studio
-- Build asset naming convention checker
-- Create print spec calculator (DPI, bleed, safe zones)
-- Build social media size converter tool
-- Create internal brief generator form
-- Build deadline/workback calculator
+- Build Rate Card Calculator (adjusts pricing by complexity: Low/Med/High and resource seniority)
+- Create Usage Rights Tracker (which assets can be used where, expiration dates)
+- Build ROI Calculator for client-facing proposals
+- Create asset naming convention checker
+- Build print spec calculator (DPI, bleed, safe zones)
+- Create social media size converter tool
+- Build internal brief generator form
+- Create deadline/workback calculator
+- Build custom campaign performance dashboards
 
 ### Claude Cowork
 - Batch rename hundreds of assets with consistent naming
+- Visually inspect files (open IMG_0492.png, identify as "fall sneaker hero shot") and rename descriptively
+- Navigate legacy non-API systems to migrate data or update project statuses
 - Extract data from messy briefs into structured format
 - Organize project folders by client/campaign/date
+- Multi-tab web navigation to compile competitor pricing into spreadsheets
 - Convert meeting notes into formatted action items
 - Clean up and consolidate version files
+- Connect to local file systems via MCP for privacy-sensitive client work (advanced)
+- Execute Photoshop commands through natural language via MCP servers (advanced edge case)
 
 ### Custom Agents
 - Brand voice assistant with uploaded guidelines
@@ -206,36 +231,38 @@ function buildToolkitPrompt(
 - Email template generator in your personal style
 - Quality checker against brand standards
 - Meeting prep assistant with historical context
+- Upload NotebookLM notebooks as knowledge to create RAG-enhanced custom agents
+- Multi-agent orchestration: Research agent → Writing agent → Publishing agent
+- Manager Agent that routes requests to specialized agents based on task type
+- Synthetic research agents: create AI customer personas to test messaging before media spend
+- Pre-validate campaign concepts with AI focus groups modeled on real demographics
 
 ## Instructions
 
 ### For each tool, generate:
 
-1. **Subtitle**: 2-4 word descriptor of how THIS USER would use it
-   - NOT generic (e.g., "File Management")
-   - Specific to their friction (e.g., "Nike Asset Organization")
-
-2. **Use Cases**: Exactly 3 bullet points
+1. **Use Cases**: Exactly 3 bullet points
    - Start with action verb
    - Reference their specific context (client names, tools, task types)
    - Solve their actual friction points
    - Be implementable this week
 
-3. **Why This Matters**: One sentence connecting tool to their specific pain
+2. **Why This Matters**: One sentence connecting tool to their specific pain
    - Reference their data (hours, friction type)
    - Make the ROI clear
 
 ### Calibration Rules
 
 **If Pioneer/Fast Follower (high AI readiness):**
-- Include advanced use cases
+- Include advanced use cases (MCP integration, multi-agent orchestration, synthetic research)
 - Technical language acceptable
 - Suggest combining tools
 
 **If Pragmatist/Skeptic (lower readiness):**
-- Focus on simple entry points
+- Focus on simple entry points (Audio Overviews, basic ChatGPT, simple AI Studio tools)
 - Emphasize ease of use
 - One tool at a time approach
+- Avoid technical edge cases
 
 **If specific repeated task identified (Q18):**
 - Reference that exact task in Custom Agents recommendation
@@ -247,12 +274,50 @@ function buildToolkitPrompt(
 - Never recommend automating what they want human
 - Acknowledge boundaries in "why this matters"
 
+### Archetype-Specific Language
+
+**Efficiency Specialist:**
+- Frame as time savings: "Save 4 hours/week by..."
+- Emphasize ROI and speed gains
+- Use metrics in "why this matters"
+
+**Workflow Architect:**
+- Frame as systems: "Chain NotebookLM research → Custom Agent analysis..."
+- Emphasize scaling and automation potential
+- Suggest multi-tool pipelines
+
+**Craft Guardian:**
+- Frame as quality enhancement: "Use Claude Projects as a brand voice guardian..."
+- Emphasize AI supports craft, doesn't replace it
+- Mention quality control features
+
+**Curious Explorer:**
+- Frame as learning opportunities: "Experiment with synthetic focus groups..."
+- Emphasize exploration and discovery
+- Encouraging but practical tone
+
+**Steady Guide:**
+- Frame as proven approaches: "Upload brand guidelines for instant compliance..."
+- Emphasize reliability and low-risk
+- Focus on established use cases
+
+**Strategic Navigator:**
+- Frame as team impact: "Build a Manager Agent that routes requests..."
+- Emphasize big picture and alignment
+- Mention cross-functional benefits
+
 ### Web Search Requirement
 
 For each tool, search the web for 1-2 current, creative use cases that match this user's:
 - Industry (creative agency / retail / advertising)
 - Role (${responses.q3_role || 'Creative Professional'})
 - Friction type (${(responses.q13_friction_types || []).join(', ') || 'workflow friction'})
+
+**Search guidelines:**
+- Prioritize sources from 2024-2025
+- Focus on real-world implementations (case studies, agency blogs)
+- Look for creative agencies, marketing teams, retail, PropTech examples
+- Avoid generic tutorials or feature announcements
 
 Blend web-sourced ideas with base use cases. Prioritize novel applications over obvious ones.
 
@@ -269,7 +334,6 @@ Blend web-sourced ideas with base use cases. Prioritize novel applications over 
   "toolkit": [
     {
       "tool": "NotebookLM",
-      "subtitle": "string (2-4 words)",
       "use_cases": [
         "string (action verb + specific task)",
         "string",
@@ -278,26 +342,22 @@ Blend web-sourced ideas with base use cases. Prioritize novel applications over 
       "why_this_matters": "string (one sentence with data reference)"
     },
     {
-      "tool": "Claude / Gemini / ChatGPT / Perplexity",
-      "subtitle": "string",
+      "tool": "Claude / Gemini / ChatGPT",
       "use_cases": ["string", "string", "string"],
       "why_this_matters": "string"
     },
     {
       "tool": "AI Studio",
-      "subtitle": "string",
       "use_cases": ["string", "string", "string"],
       "why_this_matters": "string"
     },
     {
       "tool": "Claude Cowork",
-      "subtitle": "string",
       "use_cases": ["string", "string", "string"],
       "why_this_matters": "string"
     },
     {
       "tool": "Custom Agents",
-      "subtitle": "string",
       "use_cases": ["string", "string", "string"],
       "why_this_matters": "string"
     }
@@ -319,7 +379,8 @@ function buildAutomationPrompt(
 - Primary Client: ${responses.q8_primary_client || 'Various clients'}
 - Work Type: ${responses.q7_work_type || 'Mix of everything'}
 - Top Friction Types: ${(responses.q13_friction_types || []).join(', ') || 'Various friction points'}
-- Weekly Friction Hours: ${responses.q15_total_friction_hours || 0}
+- Weekly Friction Hours: ${responses.q14_friction_hours ? Object.values(responses.q14_friction_hours).reduce((a, b) => a + b, 0) : 0}
+- Per-Friction Hours: ${responses.q14_friction_hours ? Object.entries(responses.q14_friction_hours).map(([k, v]) => `${k}: ${v}h`).join(', ') : 'Not specified'}
 - Repeated Tasks: ${responses.q18_repeated_task || 'Not specified'}
 - Handoff Pain Points: ${responses.q19_handoff_pain || 'Not specified'}
 - Things Waiting on Others: ${responses.q19_handoff_pain || 'Not specified'}
@@ -432,7 +493,8 @@ function buildNarrativePrompt(
 - Primary Client: ${responses.q8_primary_client || 'Various clients'}
 - Work Type: ${responses.q7_work_type || 'Mix of everything'}
 - Top Friction Types: ${(responses.q13_friction_types || []).join(', ') || 'Various friction points'}
-- Weekly Friction Hours: ${responses.q15_total_friction_hours || 0}
+- Weekly Friction Hours: ${responses.q14_friction_hours ? Object.values(responses.q14_friction_hours).reduce((a, b) => a + b, 0) : 0}
+- Per-Friction Hours: ${responses.q14_friction_hours ? Object.entries(responses.q14_friction_hours).map(([k, v]) => `${k}: ${v}h`).join(', ') : 'Not specified'}
 - Repeated Tasks: ${responses.q18_repeated_task || 'Not specified'}
 - Handoff Pain Points: ${responses.q19_handoff_pain || 'Not specified'}
 - Time Allocation: Creative ${responses.q16_time_allocation?.creative || 25}%, Production ${responses.q16_time_allocation?.production || 25}%, Communication ${responses.q16_time_allocation?.communication || 25}%, Admin ${responses.q16_time_allocation?.admin || 25}%
@@ -505,19 +567,55 @@ Professional and data-forward. Speak as a consultant presenting findings:
  * Generate AI recommendations for a completed survey
  */
 export async function POST(request: NextRequest): Promise<NextResponse<GenerateResponse>> {
-  const supabase = createSupabaseServerClient();
-
   try {
-    // Parse request body
-    const body = (await request.json()) as GenerateRequest;
-    const { responseId } = body;
-
-    if (!responseId) {
+    // GATE 1: Input validation with Zod
+    const body = (await request.json()) as unknown;
+    const validation = generateRequestSchema.safeParse(body);
+    if (!validation.success) {
       return NextResponse.json(
-        { success: false, error: 'responseId is required' },
+        { success: false, error: 'Invalid request' },
         { status: 400 }
       );
     }
+    const { responseId } = validation.data;
+
+    // GATE 2: Authentication check
+    const anonSupabase = await createSupabaseServerClient();
+    const { data: { user } } = await anonSupabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    // GATE 3: Rate limiting (per user)
+    const rateLimitCheck = generateRateLimiter.check(user.id);
+    if (!rateLimitCheck.allowed) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': Math.ceil(rateLimitCheck.retryAfter / 1000).toString() } }
+      );
+    }
+    generateRateLimiter.record(user.id);
+
+    // GATE 4: Ownership verification via RLS
+    const { data: ownedResponse } = await anonSupabase
+      .from('survey_responses')
+      .select('id')
+      .eq('id', responseId)
+      .single();
+
+    if (!ownedResponse) {
+      return NextResponse.json(
+        { success: false, error: 'Access denied' },
+        { status: 403 }
+      );
+    }
+
+    // All gates passed, proceed with service role client for actual operations
+    const supabase = createSupabaseServiceClient();
 
     // Fetch the survey response
     const { data: surveyResponseData, error: fetchError } = await supabase
@@ -661,7 +759,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateR
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error: 'An internal error occurred',
       },
       { status: 500 }
     );
@@ -673,7 +771,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateR
  * Retrieve existing AI outputs for a survey response
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   try {
     const { searchParams } = new URL(request.url);
@@ -735,7 +833,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error: 'An internal error occurred',
       },
       { status: 500 }
     );

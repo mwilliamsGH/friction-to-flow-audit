@@ -2,22 +2,31 @@
 // Calculate metrics: friction hours, AI readiness, automation potential
 // Based on the calculation rules from friction-to-flow-questionnaire.md
 
-import { SurveyResponses, CalculatedMetrics } from '@/types';
+import { SurveyResponses, CalculatedMetrics, FrictionHours } from '@/types';
 
 /**
  * Calculate Weekly Friction Hours
  *
- * Source: Q14 + Q15
- * The total friction hours (Q15) represents all friction loops combined
+ * Source: Q14 (friction hours per friction type)
+ * The total friction hours is the sum of all per-friction hours
  *
  * @returns Weekly friction hours (0-40+)
  */
 export function calculateWeeklyFrictionHours(responses: Partial<SurveyResponses>): number {
-  // Q15 is the total friction hours (primary metric)
-  const totalFrictionHours = responses.q15_total_friction_hours ?? 0;
+  // Q14 contains per-friction hours
+  const frictionHours = responses.q14_friction_hours;
 
-  // Ensure we return a valid number
-  return Math.max(0, totalFrictionHours);
+  if (frictionHours && typeof frictionHours === 'object') {
+    // Sum all friction hours
+    const total = Object.values(frictionHours as FrictionHours).reduce(
+      (sum, hours) => sum + (hours || 0),
+      0
+    );
+    return Math.max(0, total);
+  }
+
+  // Fallback to 0 if no friction hours data
+  return 0;
 }
 
 /**

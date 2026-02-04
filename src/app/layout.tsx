@@ -1,22 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Nunito_Sans } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const nunitoSans = Nunito_Sans({
+  variable: "--font-nunito-sans",
   subsets: ["latin"],
   display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
+  weight: ["300", "400", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Friction-to-Flow AI Audit",
+    default: "Friction-to-Flow Deep Flow Dashboard",
     template: "%s | Friction-to-Flow",
   },
   description:
@@ -36,7 +31,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#f0f0f3",
+  themeColor: "#f9f7f2",
 };
 
 export default function RootLayout({
@@ -47,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
+        className={`${nunitoSans.variable} font-sans antialiased h-full text-[var(--text-main)] bg-[var(--neo-bg)]`}
       >
         {children}
       </body>

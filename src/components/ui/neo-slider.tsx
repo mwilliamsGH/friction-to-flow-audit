@@ -71,7 +71,7 @@ const NeoSlider = forwardRef<HTMLInputElement, NeoSliderProps>(
             onChange={handleChange}
             className="neo-slider w-full"
             style={{
-              background: `linear-gradient(to right, var(--primary) 0%, var(--primary) ${percentage}%, var(--background) ${percentage}%, var(--background) 100%)`,
+              background: `linear-gradient(to right, var(--brand-dark) 0%, var(--brand-dark) ${percentage}%, var(--neo-bg) ${percentage}%, var(--neo-bg) 100%)`,
             }}
             {...props}
           />

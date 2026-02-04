@@ -2,6 +2,7 @@
 
 import { NeoCard } from '@/components/ui';
 import { SurveyResponses } from '@/types';
+import { BRAND_COLORS } from '@/lib/colors';
 
 interface FrictionItem {
   label: string;
@@ -18,13 +19,14 @@ export function HighestFrictionCard({ frictionItems, totalHours }: HighestFricti
 
   return (
     <NeoCard>
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
-          <svg className="w-4 h-4 text-accent-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="neo-top-accent"></div>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 neo-inset-circle flex items-center justify-center text-brand-dark">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
-        <h4 className="font-semibold text-gray-900">Highest Friction</h4>
+        <h4 className="font-extrabold text-base text-[var(--text-heading)]">Highest Friction</h4>
       </div>
 
       <div className="space-y-3 mb-4">
@@ -39,7 +41,7 @@ export function HighestFrictionCard({ frictionItems, totalHours }: HighestFricti
                 className="h-full rounded-full transition-all duration-500"
                 style={{
                   width: `${(item.hours / maxHours) * 100}%`,
-                  backgroundColor: index === 0 ? '#ef4444' : index === 1 ? '#f97316' : '#22c55e',
+                  backgroundColor: index === 0 ? BRAND_COLORS.primary : index === 1 ? BRAND_COLORS.dark : BRAND_COLORS.medium,
                 }}
               />
             </div>
@@ -49,7 +51,7 @@ export function HighestFrictionCard({ frictionItems, totalHours }: HighestFricti
 
       <div className="pt-3 border-t border-gray-100">
         <span className="text-xs text-gray-500 uppercase tracking-wider">Total Lost Weekly</span>
-        <p className="text-2xl font-bold text-accent-red">{totalHours} hrs</p>
+        <p className="text-2xl font-black text-black">{totalHours} hrs</p>
       </div>
     </NeoCard>
   );
@@ -86,13 +88,14 @@ export function CoreTechStackCard({ tools, techWalls }: CoreTechStackCardProps) 
 
   return (
     <NeoCard>
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center">
-          <svg className="w-4 h-4 text-accent-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="neo-top-accent"></div>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 neo-inset-circle flex items-center justify-center text-brand-primary">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
         </div>
-        <h4 className="font-semibold text-gray-900">Core Tech Stack</h4>
+        <h4 className="font-extrabold text-base text-[var(--text-heading)]">Core Tech Stack</h4>
       </div>
 
       <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Primary Tools</p>
@@ -100,7 +103,7 @@ export function CoreTechStackCard({ tools, techWalls }: CoreTechStackCardProps) 
         {tools.slice(0, 6).map((tool) => (
           <span
             key={tool}
-            className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700"
+            className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700 border border-gray-200"
           >
             {toolLabels[tool] || tool}
           </span>
@@ -113,8 +116,8 @@ export function CoreTechStackCard({ tools, techWalls }: CoreTechStackCardProps) 
       </div>
 
       {techWalls.length > 0 && (
-        <div className="p-3 bg-orange-50 rounded-xl border border-orange-100">
-          <p className="text-xs font-semibold text-accent-orange uppercase tracking-wider mb-1">
+        <div className="p-3 bg-brand-lightest rounded-lg border border-brand-light">
+          <p className="text-xs font-semibold text-brand-dark uppercase tracking-wider mb-1">
             Tech Wall Identified
           </p>
           <p className="text-sm text-gray-700 italic">
@@ -163,22 +166,15 @@ export function AuditSignalsCard({
 
   return (
     <NeoCard>
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-          <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="neo-top-accent"></div>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 neo-inset-circle flex items-center justify-center text-brand-medium">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
         </div>
-        <h4 className="font-semibold text-gray-900">Audit Signals</h4>
+        <h4 className="font-extrabold text-base text-[var(--text-heading)]">Audit Signals</h4>
       </div>
-
-      {sacred && (
-        <div className="mb-4">
-          <p className="text-sm text-gray-700 italic leading-relaxed">
-            "{sacred}"
-          </p>
-        </div>
-      )}
 
       <div className="space-y-3">
         {adoptionSpeed && (
@@ -206,6 +202,17 @@ export function AuditSignalsCard({
           </div>
         )}
       </div>
+
+      {sacred && (
+        <div className="mt-4 p-3 bg-brand-lightest rounded-lg border border-brand-light">
+          <p className="text-xs font-semibold text-brand-dark uppercase tracking-wider mb-1">
+            AI should NOT touch:
+          </p>
+          <p className="text-sm text-gray-700 italic leading-relaxed">
+            "{sacred}"
+          </p>
+        </div>
+      )}
     </NeoCard>
   );
 }
@@ -224,18 +231,28 @@ export function EvidenceLayer({ responses }: EvidenceLayerProps) {
     'the-approval-chase': 'Approval Chasing',
     'the-format-shuffle': 'Format Conversion',
     'the-handoff-gap': 'Handoff Gaps',
+    'other': 'Other',
   };
 
-  // Create friction items from responses
-  const totalHours = responses.q15_total_friction_hours || 0;
-  const worstHours = responses.q14_worst_friction_hours || 0;
+  // Get friction hours from new data structure
+  const frictionHoursData = responses.q14_friction_hours || {};
   const frictionTypes = responses.q13_friction_types || [];
 
-  // Distribute hours across friction types (weighted by worst friction)
-  const frictionItems: FrictionItem[] = frictionTypes.slice(0, 3).map((type, index) => ({
-    label: frictionLabels[type] || type.replace(/-/g, ' '),
-    hours: index === 0 ? worstHours : Math.round((totalHours - worstHours) / (frictionTypes.length - 1) * 10) / 10,
-  }));
+  // Calculate total hours from per-friction data
+  const totalHours = Object.values(frictionHoursData).reduce(
+    (sum, hours) => sum + (hours || 0),
+    0
+  );
+
+  // Create friction items from actual per-friction hours data
+  // Sort by hours descending and take top 3
+  const frictionItems: FrictionItem[] = frictionTypes
+    .map((type) => ({
+      label: frictionLabels[type] || type.replace(/-/g, ' '),
+      hours: frictionHoursData[type] || 0,
+    }))
+    .sort((a, b) => b.hours - a.hours)
+    .slice(0, 3);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

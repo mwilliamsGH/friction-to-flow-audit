@@ -7,12 +7,13 @@ import { NeoRadioGroup } from '@/components/ui/neo-radio';
 import { NeoCheckbox } from '@/components/ui/neo-checkbox';
 import { NeoSlider } from '@/components/ui/neo-slider';
 import { PercentageAllocation } from '@/components/ui/percentage-allocation';
-import { QuestionConfig, TimeAllocation, PartialSurveyResponses } from '@/types';
+import { FrictionHoursAllocation } from '@/components/ui/friction-hours-allocation';
+import { QuestionConfig, TimeAllocation, FrictionHours, PartialSurveyResponses } from '@/types';
 
 interface QuestionRendererProps {
   question: QuestionConfig;
-  value: string | string[] | number | TimeAllocation | undefined;
-  onChange: (key: string, value: string | string[] | number | TimeAllocation) => void;
+  value: string | string[] | number | TimeAllocation | FrictionHours | undefined;
+  onChange: (key: string, value: string | string[] | number | TimeAllocation | FrictionHours) => void;
   error?: string;
   responses?: PartialSurveyResponses;
 }
@@ -81,6 +82,46 @@ const QuestionRenderer = ({
 
   const handlePercentageChange = (allocation: TimeAllocation) => {
     onChange(question.key, allocation);
+  };
+
+  const handleFrictionHoursChange = (frictionHours: FrictionHours) => {
+    onChange(question.key, frictionHours);
+  };
+
+  const handleOtherTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (question.otherKey) {
+      onChange(question.otherKey, e.target.value);
+    }
+  };
+
+  // Get the "other" text value from responses
+  const otherValue = question.otherKey
+    ? (responses?.[question.otherKey as keyof PartialSurveyResponses] as string) || ''
+    : '';
+
+  // Check if "other" is selected
+  const isOtherSelected = () => {
+    if (Array.isArray(value)) {
+      return value.includes('other');
+    }
+    return value === 'other';
+  };
+
+  const renderOtherInput = () => {
+    if (!question.otherKey || !isOtherSelected()) {
+      return null;
+    }
+
+    return (
+      <div className="mt-3 ml-8">
+        <NeoInput
+          value={otherValue}
+          onChange={handleOtherTextChange}
+          placeholder="Please specify..."
+          className="max-w-md"
+        />
+      </div>
+    );
   };
 
   const renderQuestionLabel = () => (
@@ -153,6 +194,7 @@ const QuestionRenderer = ({
             error={error}
             required={question.required}
           />
+          {renderOtherInput()}
         </div>
       );
 
@@ -166,6 +208,7 @@ const QuestionRenderer = ({
             onChange={handleRadioChange}
             options={question.options || []}
           />
+          {renderOtherInput()}
           {error && <p className="text-sm text-accent-red mt-2">{error}</p>}
         </div>
       );
@@ -191,15 +234,27 @@ const QuestionRenderer = ({
               const isDisabled = maxReached && !isChecked;
 
               return (
-                <NeoCheckbox
-                  key={option.value}
-                  label={option.label}
-                  description={option.description}
-                  checked={isChecked}
-                  disabled={isDisabled}
-                  onChange={(e) => handleMultiSelectChange(option.value, e.target.checked)}
-                  className={isDisabled ? 'opacity-50 cursor-not-allowed' : ''}
-                />
+                <div key={option.value}>
+                  <NeoCheckbox
+                    label={option.label}
+                    description={option.description}
+                    checked={isChecked}
+                    disabled={isDisabled}
+                    onChange={(e) => handleMultiSelectChange(option.value, e.target.checked)}
+                    className={isDisabled ? 'opacity-50 cursor-not-allowed' : ''}
+                  />
+                  {/* Show "other" input inline after the checkbox */}
+                  {option.value === 'other' && isChecked && question.otherKey && (
+                    <div className="mt-2 ml-8">
+                      <NeoInput
+                        value={otherValue}
+                        onChange={handleOtherTextChange}
+                        placeholder="Please specify..."
+                        className="max-w-md"
+                      />
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -234,6 +289,38 @@ const QuestionRenderer = ({
             onChange={handlePercentageChange}
             error={error}
           />
+        </div>
+      );
+
+    case 'friction-hours-allocation':
+      // Get selected friction types from the source question
+      const frictionSourceKey = question.frictionSourceKey as keyof PartialSurveyResponses;
+      const selectedFrictions = (responses?.[frictionSourceKey] as string[]) || [];
+
+      // Only show if there are selected frictions
+      if (selectedFrictions.length === 0) {
+        return (
+          <div className="space-y-2">
+            {renderQuestionLabel()}
+            <p className="text-sm text-gray-500 italic">
+              Please select friction types in the previous question first.
+            </p>
+          </div>
+        );
+      }
+
+      return (
+        <div className="space-y-2">
+          {renderQuestionLabel()}
+          <FrictionHoursAllocation
+            selectedFrictions={selectedFrictions}
+            value={(value as FrictionHours) || {}}
+            onChange={handleFrictionHoursChange}
+            min={question.validation?.min ?? 0}
+            max={question.validation?.max ?? 20}
+            step={question.validation?.step ?? 0.5}
+          />
+          {error && <p className="text-sm text-accent-red mt-2">{error}</p>}
         </div>
       );
 

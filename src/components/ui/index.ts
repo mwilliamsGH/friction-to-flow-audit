@@ -8,3 +8,5 @@ export { NeoRadio, NeoRadioGroup } from './neo-radio';
 export { NeoSelect } from './neo-select';
 export { NeoProgress, NeoLinearProgress } from './neo-progress';
 export { PercentageAllocation } from './percentage-allocation';
+export { FrictionHoursAllocation } from './friction-hours-allocation';
+export { FeedbackModal, FeedbackButton } from './feedback-modal';

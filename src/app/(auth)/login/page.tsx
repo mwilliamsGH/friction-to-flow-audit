@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { NeoCard } from '@/components/ui/neo-card';
 import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
-import { createSupabaseBrowserClient } from '@/lib/supabase';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,14 +20,16 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (error) {
-        setError(error.message);
+      const data = (await res.json()) as { success?: boolean; error?: string };
+
+      if (!res.ok) {
+        setError(data.error || 'Login failed');
         return;
       }
 

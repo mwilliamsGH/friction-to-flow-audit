@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { NeoCard } from '@/components/ui/neo-card';
 import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
-import { createSupabaseBrowserClient } from '@/lib/supabase';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -30,28 +29,39 @@ export default function SignupPage() {
       return;
     }
 
-    // Validate password strength
+    // Validate password strength (client-side UX check)
     if (password.length < 8) {
       setError('Password must be at least 8 characters long');
       setLoading(false);
       return;
     }
+    if (!/[A-Z]/.test(password)) {
+      setError('Password must contain at least one uppercase letter');
+      setLoading(false);
+      return;
+    }
+    if (!/[a-z]/.test(password)) {
+      setError('Password must contain at least one lowercase letter');
+      setLoading(false);
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setError('Password must contain at least one digit');
+      setLoading(false);
+      return;
+    }
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-          emailRedirectTo: `${window.location.origin}/api/auth/callback`,
-        },
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, fullName }),
       });
 
-      if (error) {
-        setError(error.message);
+      const data = (await res.json()) as { success?: boolean; error?: string };
+
+      if (!res.ok) {
+        setError(data.error || 'Signup failed');
         return;
       }
 
@@ -126,12 +136,12 @@ export default function SignupPage() {
         <NeoInput
           label="Password"
           type="password"
-          placeholder="At least 8 characters"
+          placeholder="At least 8 characters with uppercase, lowercase, and number"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
           autoComplete="new-password"
-          helperText="Must be at least 8 characters"
+          helperText="8+ chars with uppercase, lowercase, and a number"
         />
 
         <NeoInput

@@ -9,36 +9,36 @@ const ARCHETYPE_DEFINITIONS = {
   'efficiency-specialist': {
     name: 'Efficiency Specialist',
     description: 'High friction hours, speed priority, production-focused',
-    // Score Threshold: 3+ primary signals OR (2 primary + 2 secondary)
-    thresholdPrimary: 3,
+    // Score Threshold: 2+ primary signals OR (2 primary + 2 secondary)
+    thresholdPrimary: 2,
     thresholdAltPrimary: 2,
     thresholdAltSecondary: 2,
   },
   'workflow-architect': {
     name: 'Workflow Architect',
     description: 'Pioneer adopter, uses multiple AI flavors, sees automation opportunities',
-    thresholdPrimary: 3,
+    thresholdPrimary: 2,
     thresholdAltPrimary: 2,
     thresholdAltSecondary: 2,
   },
   'craft-guardian': {
     name: 'Craft Guardian',
     description: 'Quality-focused, human touch concerns, protective of creative process',
-    thresholdPrimary: 3,
+    thresholdPrimary: 2,
     thresholdAltPrimary: 2,
     thresholdAltSecondary: 2,
   },
   'curious-explorer': {
     name: 'Curious Explorer',
     description: 'Interested but early stage, uses chat AI only, learning-oriented',
-    thresholdPrimary: 3,
+    thresholdPrimary: 2,
     thresholdAltPrimary: 2,
     thresholdAltSecondary: 2,
   },
   'steady-guide': {
     name: 'Steady Guide',
     description: 'Adopts when mandatory, prefers known tools, organization priority',
-    thresholdPrimary: 3,
+    thresholdPrimary: 2,
     thresholdAltPrimary: 2,
     thresholdAltSecondary: 2,
   },
@@ -90,13 +90,16 @@ function scoreEfficiencySpecialist(responses: SurveyResponses): ArchetypeScore {
     primarySignals++;
   }
 
-  // Q14 >= 6 hours (worst friction)
-  if (responses.q14_worst_friction_hours >= 6) {
+  // Q14: Worst friction hours >= 6 (max value from friction hours object)
+  const frictionHoursValues = responses.q14_friction_hours ? Object.values(responses.q14_friction_hours) : [];
+  const worstFrictionHours = frictionHoursValues.length > 0 ? Math.max(...frictionHoursValues) : 0;
+  if (worstFrictionHours >= 6) {
     primarySignals++;
   }
 
-  // Q15 >= 12 hours (total friction)
-  if (responses.q15_total_friction_hours >= 12) {
+  // Q14: Total friction hours >= 12 (sum of all friction hours)
+  const totalFrictionHours = frictionHoursValues.reduce((sum, hours) => sum + hours, 0);
+  if (totalFrictionHours >= 12) {
     primarySignals++;
   }
 

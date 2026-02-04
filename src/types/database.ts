@@ -45,7 +45,6 @@ export interface ToolkitRecommendations {
 
 export interface ToolCard {
   tool: string;
-  subtitle: string;
   use_cases: string[];
   why_this_matters: string;
 }

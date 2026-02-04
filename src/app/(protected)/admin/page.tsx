@@ -6,6 +6,7 @@ import { NeoCard, NeoButton } from '@/components/ui';
 import { StatCard } from '@/components/dashboard';
 import { SurveyResponse, User } from '@/types';
 import { ARCHETYPES } from '@/lib/constants';
+import { BRAND_COLORS } from '@/lib/colors';
 import Link from 'next/link';
 
 type TabId = 'overview' | 'heatmap' | 'readiness';
@@ -53,7 +54,7 @@ export default function AdminDashboardPage() {
       const avgFriction =
         completed > 0
           ? typedResponses.reduce((sum, r) => sum + (r.weekly_friction_hours || 0), 0) /
-            completed
+          completed
           : 0;
 
       setStats({
@@ -95,12 +96,11 @@ export default function AdminDashboardPage() {
 
   // Color palette for archetype distribution
   const archetypeColors = [
-    '#3b82f6', // blue
-    '#22c55e', // green
-    '#f97316', // orange
-    '#8b5cf6', // purple
-    '#14b8a6', // teal
-    '#ef4444', // red
+    BRAND_COLORS.primary,
+    BRAND_COLORS.dark,
+    BRAND_COLORS.medium,
+    BRAND_COLORS.light,
+    BRAND_COLORS.lightest,
   ];
 
   if (loading) {
@@ -146,10 +146,9 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab(tab.id)}
             className={`
               px-4 py-2 rounded-xl text-sm font-medium transition-all
-              ${
-                activeTab === tab.id
-                  ? 'neo-button-primary'
-                  : 'neo-button text-gray-600 hover:text-gray-900'
+              ${activeTab === tab.id
+                ? 'neo-button-primary'
+                : 'neo-button text-gray-600 hover:text-gray-900'
               }
             `}
           >

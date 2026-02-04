@@ -6,3 +6,4 @@ export { RadarChart, SkillSignature } from './radar-chart';
 export { EvidenceLayer, HighestFrictionCard, CoreTechStackCard, AuditSignalsCard } from './evidence-layer';
 export { MagicButtonSection } from './magic-button-section';
 export { ToolkitSection } from './toolkit-section';
+export { Sidebar } from './sidebar';

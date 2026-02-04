@@ -21,6 +21,7 @@ export default function DashboardPage() {
   const [aiOutput, setAiOutput] = useState<AIOutput | null>(null);
   const [toolConfigs, setToolConfigs] = useState<Record<string, string | null>>({});
   const [historicalResponses, setHistoricalResponses] = useState<SurveyResponse[]>([]);
+  const [explanationOpen, setExplanationOpen] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -219,29 +220,89 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen pb-12">
       {/* Page Header */}
+      {/* Page Header */}
       <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Friction-to-Flow Audit</h1>
-            <p className="text-sm text-gray-500 uppercase tracking-wider">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 flex-wrap">
+          <div className="relative min-w-0">
+            <h1 className="!text-xl md:!text-3xl font-display !font-bold md:!font-black text-gray-900 flex items-center gap-3 truncate">
+              Audit Overview
+              <button
+                onClick={() => setExplanationOpen(!explanationOpen)}
+                className="text-gray-400 hover:text-primary transition-colors focus:outline-none flex-shrink-0"
+                aria-label="How was this generated?"
+              >
+                <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+            </h1>
+
+            {/* Generation Explanation Popover */}
+            {explanationOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setExplanationOpen(false)}
+                />
+                <div className="absolute top-full left-0 mt-2 w-[85vw] md:w-[400px] z-50 bg-white rounded-xl shadow-xl border border-gray-100 p-6 animate-in fade-in slide-in-from-top-2">
+                  <h4 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                    </svg>
+                    How Your Recommendations Were Generated
+                  </h4>
+                  <ul className="space-y-3 mb-4">
+                    <li className="flex items-start gap-3">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">1</span>
+                      <p className="text-xs text-gray-600"><strong>Survey Analysis:</strong> Your responses analyzed for friction patterns, tool usage, and AI readiness.</p>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">2</span>
+                      <p className="text-xs text-gray-600"><strong>Archetype Matching:</strong> Matched to 1 of 6 workflow archetypes based on your working style.</p>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">3</span>
+                      <p className="text-xs text-gray-600"><strong>AI Generation:</strong> Custom recommendations generated considering your friction points and lost hours.</p>
+                    </li>
+                  </ul>
+                  <button
+                    onClick={() => setExplanationOpen(false)}
+                    className="w-full py-2 text-xs font-semibold text-gray-500 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </>
+            )}
+
+            <p className="text-sm text-gray-500 uppercase tracking-wider mt-1">
               Autside Agency • Personal Performance
             </p>
           </div>
 
-          {/* Historical dropdown */}
-          {historicalResponses.length > 1 && (
-            <select
-              value={surveyResponse.id}
-              onChange={(e) => handleSelectHistoricalResponse(e.target.value)}
-              className="neo-input text-sm"
-            >
-              {historicalResponses.map((r, i) => (
-                <option key={r.id} value={r.id}>
-                  {i === 0 ? 'Current' : new Date(r.completed_at!).toLocaleDateString()}
-                </option>
-              ))}
-            </select>
-          )}
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            {/* Retake Survey button */}
+            <Link href="/survey" className="flex-1 md:flex-none">
+              <NeoButton variant="primary" size="sm" className="whitespace-nowrap rounded-full w-full md:w-auto text-center justify-center">
+                Retake Survey
+              </NeoButton>
+            </Link>
+
+            {/* Historical dropdown */}
+            {historicalResponses.length > 1 && (
+              <select
+                value={surveyResponse.id}
+                onChange={(e) => handleSelectHistoricalResponse(e.target.value)}
+                className="neo-input text-sm flex-1 md:flex-none md:!w-40"
+              >
+                {historicalResponses.map((r, i) => (
+                  <option key={r.id} value={r.id}>
+                    {i === 0 ? 'Current' : new Date(r.completed_at!).toLocaleDateString()}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
         </div>
       </div>
 
@@ -255,19 +316,14 @@ export default function DashboardPage() {
           automationPotential={surveyResponse.automation_potential || 0}
         />
 
-        {/* Evolutionary Strategy */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <EvolutionaryStrategy
-              narrative={aiOutput?.narrative || 'Your personalized analysis is being generated...'}
-              coreRecommendation={aiOutput?.core_recommendation || 'Check back soon for your core recommendation.'}
-              onExploreToolkit={scrollToToolkit}
-            />
-          </div>
-          <div className="neo-card p-6">
-            <SkillSignature data={responses.q16_time_allocation || { creative: 25, production: 25, communication: 25, admin: 25 }} />
-          </div>
-        </div>
+        {/* Evolutionary Strategy & Skill Signature - Combined Card */}
+        <EvolutionaryStrategy
+          narrative={aiOutput?.narrative || 'Your personalized analysis is being generated...'}
+          coreRecommendation={aiOutput?.core_recommendation || 'Check back soon for your core recommendation.'}
+          onExploreToolkit={scrollToToolkit}
+        >
+          <SkillSignature data={responses.q16_time_allocation || { creative: 25, production: 25, communication: 25, admin: 25 }} />
+        </EvolutionaryStrategy>
 
         {/* Deep Insights Divider */}
         <div className="flex items-center gap-4 py-4">
@@ -294,19 +350,6 @@ export default function DashboardPage() {
             tutorialUrls={toolConfigs}
           />
         )}
-
-        {/* Retake Survey CTA */}
-        <NeoCard className="text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready for a fresh perspective?</h3>
-          <p className="text-gray-600 mb-4">
-            Retake the audit to track your progress and get updated recommendations.
-          </p>
-          <Link href="/survey">
-            <NeoButton variant="secondary">
-              Retake Survey
-            </NeoButton>
-          </Link>
-        </NeoCard>
       </div>
     </div>
   );

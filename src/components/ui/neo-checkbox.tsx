@@ -23,7 +23,7 @@ const NeoCheckbox = forwardRef<HTMLInputElement, NeoCheckboxProps>(
           ref={ref}
           type="checkbox"
           id={checkboxId}
-          className="neo-checkbox flex-shrink-0 mt-0.5"
+          className="neo-checkbox flex-shrink-0 mt-0.5 accent-[var(--brand-dark)]"
           {...props}
         />
         <div className="flex-1">

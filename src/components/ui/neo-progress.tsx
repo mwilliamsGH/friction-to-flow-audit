@@ -40,10 +40,9 @@ const NeoProgress = ({
               <div
                 className={`
                   h-2 w-full rounded-full transition-all duration-300
-                  ${
-                    isCompleted || isPast
-                      ? 'bg-primary'
-                      : isCurrent
+                  ${isCompleted || isPast
+                    ? 'bg-primary'
+                    : isCurrent
                       ? 'bg-gradient-to-r from-primary to-primary-light'
                       : 'neo-inset'
                   }
@@ -93,8 +92,8 @@ const NeoLinearProgress = ({
   };
 
   const colorClasses = {
-    primary: 'from-primary to-primary-light',
-    green: 'from-accent-green to-green-400',
+    primary: 'from-brand-primary to-brand-dark',
+    green: 'from-brand-primary to-brand-medium',
     orange: 'from-accent-orange to-orange-400',
     red: 'from-accent-red to-red-400',
   };

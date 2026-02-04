@@ -11,6 +11,7 @@ import {
   SurveySection,
   PartialSurveyResponses,
   TimeAllocation,
+  FrictionHours,
   QuestionConfig,
 } from '@/types';
 
@@ -70,7 +71,7 @@ export default function SectionPage({ params }: SectionPageProps) {
 
   // Handle response changes with auto-save
   const handleResponseChange = useCallback(
-    (key: string, value: string | string[] | number | TimeAllocation) => {
+    (key: string, value: string | string[] | number | TimeAllocation | FrictionHours) => {
       if (!progress) return;
 
       const newResponses = {

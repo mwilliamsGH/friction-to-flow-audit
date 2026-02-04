@@ -1,4 +1,5 @@
 import { QuestionConfig, SectionConfig, ArchetypeConfig } from '@/types';
+import { BRAND_COLORS } from '@/lib/colors';
 
 // Survey Section Configurations
 export const SURVEY_SECTIONS: SectionConfig[] = [
@@ -18,7 +19,7 @@ export const SURVEY_SECTIONS: SectionConfig[] = [
     introTitle: "Now let's talk about the friction.",
     introDescription:
       "We're looking for the tasks that drain your energy—the repetitive work that feels like walking through mud. Be honest; this is where we find the opportunities.",
-    questions: ['q13', 'q14', 'q15', 'q16', 'q17', 'q18', 'q19', 'q20', 'q21', 'q22', 'q23'],
+    questions: ['q13', 'q14', 'q16', 'q17', 'q18', 'q19', 'q20', 'q21', 'q22', 'q23'],
   },
   {
     id: 'ai-sentiment',
@@ -68,6 +69,7 @@ export const SURVEY_QUESTIONS: Record<string, QuestionConfig> = {
     type: 'dropdown',
     question: "What's your role?",
     required: true,
+    otherKey: 'q3_role_other',
     options: [
       { value: 'production-designer', label: 'Production Designer' },
       { value: 'senior-production-designer', label: 'Senior Production Designer' },
@@ -105,6 +107,7 @@ export const SURVEY_QUESTIONS: Record<string, QuestionConfig> = {
     question: 'What tools do you use daily?',
     required: true,
     validation: { minSelections: 1 },
+    otherKey: 'q5_tools_other',
     options: [
       { value: 'adobe-photoshop', label: 'Adobe Photoshop' },
       { value: 'adobe-illustrator', label: 'Adobe Illustrator' },
@@ -117,6 +120,8 @@ export const SURVEY_QUESTIONS: Record<string, QuestionConfig> = {
       { value: 'microsoft-excel', label: 'Microsoft Excel' },
       { value: 'google-slides', label: 'Google Slides' },
       { value: 'google-sheets', label: 'Google Sheets' },
+      { value: 'email', label: 'Email (Gmail, Outlook)' },
+      { value: 'notion', label: 'Notion' },
       { value: 'slack', label: 'Slack' },
       { value: 'microsoft-teams', label: 'Microsoft Teams' },
       { value: 'asana', label: 'Asana' },
@@ -137,6 +142,7 @@ export const SURVEY_QUESTIONS: Record<string, QuestionConfig> = {
     description: 'Select any friction points you experience regularly.',
     required: false,
     conditionalOn: { questionKey: 'q5_tools', showWhenHasValue: true },
+    otherKey: 'q6_tech_walls_other',
     options: [
       { value: 'adobe-powerpoint-conversions', label: 'Adobe → PowerPoint conversions' },
       { value: 'wrong-file-formats', label: 'Receiving files in wrong formats' },
@@ -183,6 +189,7 @@ export const SURVEY_QUESTIONS: Record<string, QuestionConfig> = {
     type: 'radio',
     question: 'What slows you down most often?',
     required: true,
+    otherKey: 'q9_slowdown_other',
     options: [
       { value: 'waiting-for-assets', label: 'Waiting for assets or information' },
       { value: 'unclear-briefs', label: 'Unclear briefs or requirements' },
@@ -237,6 +244,7 @@ export const SURVEY_QUESTIONS: Record<string, QuestionConfig> = {
     description: 'Select all that apply.',
     required: true,
     validation: { minSelections: 1 },
+    otherKey: 'q13_friction_types_other',
     options: [
       {
         value: 'the-pivot',
@@ -278,23 +286,14 @@ export const SURVEY_QUESTIONS: Record<string, QuestionConfig> = {
   },
   q14: {
     id: 'q14',
-    key: 'q14_worst_friction_hours',
+    key: 'q14_friction_hours',
     section: 'friction',
-    type: 'slider',
-    question: 'How many hours per week does your worst friction loop consume?',
+    type: 'friction-hours-allocation',
+    question: 'How many hours per week does EACH friction consume?',
+    description: 'Adjust the sliders for each friction you selected. Total hours are calculated automatically.',
     required: true,
+    frictionSourceKey: 'q13_friction_types',
     validation: { min: 0, max: 20, step: 0.5 },
-    sliderLabels: { min: 'None', max: '20+ hours' },
-  },
-  q15: {
-    id: 'q15',
-    key: 'q15_total_friction_hours',
-    section: 'friction',
-    type: 'slider',
-    question: 'Roughly how many total hours per week do ALL friction loops consume?',
-    required: true,
-    validation: { min: 0, max: 40, step: 1 },
-    sliderLabels: { min: 'None', max: '40+ hours' },
   },
   q16: {
     id: 'q16',
@@ -414,7 +413,7 @@ export const SURVEY_QUESTIONS: Record<string, QuestionConfig> = {
       { value: 'the-canvas', label: 'The Canvas', description: 'Image generation (Midjourney, DALL-E, Firefly)' },
       { value: 'the-voice', label: 'The Voice', description: 'Voice/video AI (ElevenLabs, Synthesia, Descript)' },
       { value: 'the-analyst', label: 'The Analyst', description: 'Data analysis or spreadsheet AI' },
-      { value: 'the-researcher', label: 'The Researcher', description: 'Perplexity, Gemini, or AI-powered search' },
+      { value: 'the-researcher', label: 'The Researcher', description: 'Gemini, or AI-powered search' },
       { value: 'the-builder', label: 'The Builder', description: 'No-code tools, AI app builders, vibe coding' },
       { value: 'none', label: 'None of these' },
     ],
@@ -466,6 +465,7 @@ export const SURVEY_QUESTIONS: Record<string, QuestionConfig> = {
     description: 'Select up to 3.',
     required: false,
     validation: { maxSelections: 3 },
+    otherKey: 'q29_ai_concerns_other',
     options: [
       { value: 'brand-accuracy', label: 'Brand accuracy and consistency' },
       { value: 'legal-copyright', label: 'Legal or copyright issues' },
@@ -573,7 +573,7 @@ export const ARCHETYPES: Record<string, ArchetypeConfig> = {
     name: 'Efficiency Specialist',
     description: 'High friction hours, speed priority, production-focused',
     philosophy: 'An Efficiency Specialist optimizes workflows for maximum output, identifying and eliminating bottlenecks with surgical precision.',
-    color: '#ef4444',
+    color: BRAND_COLORS.primary,
     icon: 'zap',
   },
   'workflow-architect': {
@@ -581,7 +581,7 @@ export const ARCHETYPES: Record<string, ArchetypeConfig> = {
     name: 'Workflow Architect',
     description: 'Pioneer adopter, uses multiple AI flavors, sees automation opportunities',
     philosophy: 'A Workflow Architect designs intelligent systems to minimize manual "mud", prioritizing high-value creative orchestration over repetitive technical tasks.',
-    color: '#3b82f6',
+    color: BRAND_COLORS.primary,
     icon: 'layout',
   },
   'craft-guardian': {
@@ -589,7 +589,7 @@ export const ARCHETYPES: Record<string, ArchetypeConfig> = {
     name: 'Craft Guardian',
     description: 'Quality-focused, human touch concerns, protective of creative process',
     philosophy: 'A Craft Guardian balances innovation with tradition, ensuring AI enhances rather than replaces the human elements that make creative work meaningful.',
-    color: '#8b5cf6',
+    color: BRAND_COLORS.primary,
     icon: 'shield',
   },
   'curious-explorer': {
@@ -597,7 +597,7 @@ export const ARCHETYPES: Record<string, ArchetypeConfig> = {
     name: 'Curious Explorer',
     description: 'Interested but early stage, uses chat AI only, learning-oriented',
     philosophy: 'A Curious Explorer approaches AI with open-minded curiosity, eager to discover practical applications while building foundational skills.',
-    color: '#22c55e',
+    color: BRAND_COLORS.primary,
     icon: 'compass',
   },
   'steady-guide': {
@@ -605,7 +605,7 @@ export const ARCHETYPES: Record<string, ArchetypeConfig> = {
     name: 'Steady Guide',
     description: 'Adopts when mandatory, prefers known tools, organization priority',
     philosophy: 'A Steady Guide brings stability and reliability to workflows, adopting proven solutions that enhance rather than disrupt established processes.',
-    color: '#f97316',
+    color: BRAND_COLORS.primary,
     icon: 'anchor',
   },
   'strategic-navigator': {
@@ -613,7 +613,7 @@ export const ARCHETYPES: Record<string, ArchetypeConfig> = {
     name: 'Strategic Navigator',
     description: 'Leadership role, balanced profile, clarity priority',
     philosophy: 'A Strategic Navigator balances team needs with business objectives, steering AI adoption in ways that benefit both individual workflows and organizational goals.',
-    color: '#14b8a6',
+    color: BRAND_COLORS.primary,
     icon: 'target',
   },
 };
@@ -624,32 +624,37 @@ export const TOOLS = [
     name: 'NotebookLM',
     category: 'RAG Research Hub',
     icon: 'book-open',
+    description: 'Upload documents and get instant AI-powered answers. Create audio summaries, mind maps, and searchable knowledge bases from your brand guidelines, SOPs, and reference materials.',
   },
   {
-    name: 'Claude / Gemini / ChatGPT / Perplexity',
+    name: 'Claude / Gemini / ChatGPT',
     category: 'General AI Assistants',
     icon: 'message-circle',
+    description: 'Your go-to AI assistants for writing, brainstorming, research, and image generation. Each has unique strengths—use Claude for nuanced writing, Gemini for research and visual assets.',
   },
   {
     name: 'AI Studio',
     category: 'Custom Utility Builder',
     icon: 'code',
+    description: 'Build custom internal tools using natural language (no coding required). Create spec calculators, naming convention checkers, and workflow utilities tailored to your exact needs.',
   },
   {
     name: 'Claude Cowork',
     category: 'Desktop Agent',
     icon: 'monitor',
+    description: 'AI that works directly on your desktop. Batch rename files, extract data from documents, organize folders, and automate repetitive file tasks while you focus on creative work.',
   },
   {
     name: 'Custom Agents',
     category: 'Personalized AI Assistants',
     icon: 'bot',
+    description: 'Create specialized AI assistants with your uploaded context—brand guidelines, client requirements, style guides. Get consistent, context-aware help for repeated workflows.',
   },
 ];
 
 // Complexity Tier Colors
 export const COMPLEXITY_COLORS = {
-  'Quick Win': { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200' },
-  'Project': { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200' },
-  'Initiative': { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-200' },
+  'Quick Win': { bg: 'bg-brand-lightest', text: 'text-brand-dark', border: 'border-brand-medium' },
+  'Project': { bg: 'bg-brand-light', text: 'text-brand-dark', border: 'border-brand-medium' },
+  'Initiative': { bg: 'bg-brand-medium', text: 'text-white', border: 'border-brand-dark' },
 };

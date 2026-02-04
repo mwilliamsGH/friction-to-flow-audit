@@ -66,7 +66,7 @@ CREATE TABLE public.tool_config (
 -- Insert default tool configurations
 INSERT INTO public.tool_config (tool_name, tutorial_url) VALUES
   ('NotebookLM', NULL),
-  ('Claude / Gemini / ChatGPT / Perplexity', NULL),
+  ('Claude / Gemini / ChatGPT', NULL),
   ('AI Studio', NULL),
   ('Claude Cowork', NULL),
   ('Custom Agents', NULL);
