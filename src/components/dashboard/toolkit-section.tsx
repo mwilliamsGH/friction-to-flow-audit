@@ -152,13 +152,27 @@ export function ToolkitSection({ toolkit, tutorialUrls = {} }: ToolkitSectionPro
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {toolkit.map((tool) => (
-          <ToolCard
-            key={tool.tool}
-            tool={tool}
-            tutorialUrl={tutorialUrls[tool.tool]}
-          />
-        ))}
+        {toolkit.map((tool) => {
+          // Find matching tutorial URL with flexible name matching
+          let tutorialUrl: string | null = tutorialUrls[tool.tool] || null;
+          if (!tutorialUrl) {
+            // Try flexible matching if exact match fails
+            const matchedUrl = Object.entries(tutorialUrls).find(
+              ([key]) =>
+                key === tool.tool ||
+                tool.tool.includes(key) ||
+                key.includes(tool.tool)
+            )?.[1];
+            tutorialUrl = matchedUrl || null;
+          }
+          return (
+            <ToolCard
+              key={tool.tool}
+              tool={tool}
+              tutorialUrl={tutorialUrl}
+            />
+          );
+        })}
       </div>
     </section>
   );
