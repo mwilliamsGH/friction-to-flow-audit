@@ -631,7 +631,7 @@ export const TOOLS = [
     category: 'General AI Assistants',
     icon: 'message-circle',
     description: 'Your go-to AI assistants for writing, brainstorming, research, and image generation. Each has unique strengths—use Claude for nuanced writing, Gemini for research and visual assets.',
-    tutorialUrl: 'https://www.youtube.com/watch?v=-_FizlRlfYs&t=15s',
+    tutorialUrl: 'https://www.youtube.com/watch?v=-_FizlRlfYs',
   },
   {
     name: 'AI Studio',
