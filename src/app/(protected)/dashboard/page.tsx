@@ -99,7 +99,10 @@ export default function DashboardPage() {
       const configMap: Record<string, string | null> = { ...defaultTutorialUrls };
       if (configs) {
         configs.forEach((config: ToolConfig) => {
-          configMap[config.tool_name] = config.tutorial_url;
+          // Only override if database has a non-null value
+          if (config.tutorial_url !== null) {
+            configMap[config.tool_name] = config.tutorial_url;
+          }
         });
       }
       setToolConfigs(configMap);
