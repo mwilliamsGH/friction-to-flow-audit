@@ -121,7 +121,7 @@ const NeoSelect = forwardRef<HTMLSelectElement, NeoSelectProps>(
           </button>
 
           {isOpen && (
-            <div className="absolute z-50 w-full mt-2 neo-card p-2 max-h-60 overflow-auto animate-fade-in">
+            <div className="absolute z-50 w-full mt-2 neo-card p-2 max-h-96 overflow-y-auto animate-fade-in">
               {options.map((option) => (
                 <button
                   key={option.value}

@@ -129,7 +129,6 @@ export const SURVEY_QUESTIONS: Record<string, QuestionConfig> = {
       { value: 'frame-io', label: 'Frame.io' },
       { value: 'dropbox', label: 'Dropbox' },
       { value: 'google-drive', label: 'Google Drive' },
-      { value: 'box', label: 'Box' },
       { value: 'other', label: 'Other (specify)' },
     ],
   },
@@ -625,30 +624,35 @@ export const TOOLS = [
     category: 'RAG Research Hub',
     icon: 'book-open',
     description: 'Upload documents and get instant AI-powered answers. Create audio summaries, mind maps, and searchable knowledge bases from your brand guidelines, SOPs, and reference materials.',
+    tutorialUrl: 'https://www.youtube.com/watch?v=U6R9QHNJYb8',
   },
   {
     name: 'Claude / Gemini / ChatGPT',
     category: 'General AI Assistants',
     icon: 'message-circle',
     description: 'Your go-to AI assistants for writing, brainstorming, research, and image generation. Each has unique strengths—use Claude for nuanced writing, Gemini for research and visual assets.',
+    tutorialUrl: 'https://www.youtube.com/watch?v=-_FizlRlfYs&t=15s',
   },
   {
     name: 'AI Studio',
     category: 'Custom Utility Builder',
     icon: 'code',
     description: 'Build custom internal tools using natural language (no coding required). Create spec calculators, naming convention checkers, and workflow utilities tailored to your exact needs.',
+    tutorialUrl: 'https://www.youtube.com/watch?v=UpYSNdA8a-M',
   },
   {
     name: 'Claude Cowork',
     category: 'Desktop Agent',
     icon: 'monitor',
     description: 'AI that works directly on your desktop. Batch rename files, extract data from documents, organize folders, and automate repetitive file tasks while you focus on creative work.',
+    tutorialUrl: 'https://www.youtube.com/watch?v=HTu1OGWAn5w',
   },
   {
     name: 'Custom Agents',
     category: 'Personalized AI Assistants',
     icon: 'bot',
     description: 'Create specialized AI assistants with your uploaded context—brand guidelines, client requirements, style guides. Get consistent, context-aware help for repeated workflows.',
+    tutorialUrl: 'https://www.youtube.com/watch?v=Zm9El6rng-o',
   },
 ];
 

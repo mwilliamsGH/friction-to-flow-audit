@@ -13,6 +13,7 @@ import {
 } from '@/components/dashboard';
 import { SurveyResponse, AIOutput, ToolConfig, SurveyResponses, ArchetypeId } from '@/types';
 import Link from 'next/link';
+import { TOOLS } from '@/lib/constants';
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -82,18 +83,26 @@ export default function DashboardPage() {
         setAiOutput(aiData);
       }
 
-      // Fetch tool configurations
+      // Create default tutorial URLs mapping from TOOLS constants
+      const defaultTutorialUrls: Record<string, string | null> = {};
+      TOOLS.forEach((tool) => {
+        if (tool.tutorialUrl) {
+          defaultTutorialUrls[tool.name] = tool.tutorialUrl;
+        }
+      });
+
+      // Fetch tool configurations from database and merge with defaults
       const { data: configs } = await supabase
         .from('tool_config')
         .select('*');
 
+      const configMap: Record<string, string | null> = { ...defaultTutorialUrls };
       if (configs) {
-        const configMap: Record<string, string | null> = {};
         configs.forEach((config: ToolConfig) => {
           configMap[config.tool_name] = config.tutorial_url;
         });
-        setToolConfigs(configMap);
       }
+      setToolConfigs(configMap);
 
       setLoading(false);
     } catch (err) {
