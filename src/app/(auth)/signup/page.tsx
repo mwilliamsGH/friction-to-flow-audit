@@ -7,6 +7,7 @@ import { NeoCard } from '@/components/ui/neo-card';
 import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
 
+
 export default function SignupPage() {
   const router = useRouter();
   const [fullName, setFullName] = useState('');
@@ -14,8 +15,8 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,20 +53,37 @@ export default function SignupPage() {
     }
 
     try {
-      const res = await fetch('/api/auth/signup', {
+      // Step 1: Create account
+      const signupRes = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, fullName }),
       });
 
-      const data = (await res.json()) as { success?: boolean; error?: string };
+      const signupData = (await signupRes.json()) as { success?: boolean; error?: string };
 
-      if (!res.ok) {
-        setError(data.error || 'Signup failed');
+      if (!signupRes.ok) {
+        setError(signupData.error || 'Signup failed');
         return;
       }
 
-      setSuccess(true);
+      // Step 2: Automatically log in
+      const loginRes = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const loginData = (await loginRes.json()) as { success?: boolean; error?: string };
+
+      if (!loginRes.ok) {
+        setError(loginData.error || 'Account created but login failed. Please try logging in manually.');
+        return;
+      }
+
+      // Success - redirect to dashboard
+      router.push('/dashboard');
+      router.refresh();
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
       console.error(err);
@@ -74,43 +92,12 @@ export default function SignupPage() {
     }
   };
 
-  if (success) {
-    return (
-      <NeoCard padding="xl">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent-green/10 flex items-center justify-center">
-            <svg
-              className="w-8 h-8 text-accent-green"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-semibold mb-2">Check your email</h2>
-          <p className="text-gray-500 mb-6">
-            We&apos;ve sent a confirmation link to <strong>{email}</strong>.
-            Please click the link to verify your account.
-          </p>
-          <Link href="/login">
-            <NeoButton variant="default" fullWidth>
-              Back to Login
-            </NeoButton>
-          </Link>
-        </div>
-      </NeoCard>
-    );
-  }
+
 
   return (
     <NeoCard padding="xl">
       <h2 className="text-2xl font-semibold text-center mb-6">Create Account</h2>
+
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <NeoInput

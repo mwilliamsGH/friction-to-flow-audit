@@ -7,12 +7,14 @@ import { NeoCard } from '@/components/ui/neo-card';
 import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
 
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +48,8 @@ export default function LoginPage() {
   return (
     <NeoCard padding="xl">
       <h2 className="text-2xl font-semibold text-center mb-6">Welcome Back</h2>
+
+
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <NeoInput
