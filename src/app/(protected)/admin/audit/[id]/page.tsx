@@ -11,6 +11,7 @@ import {
   EvidenceLayer,
   MagicButtonSection,
   ToolkitSection,
+  RawResponsesView,
 } from '@/components/dashboard';
 import { SurveyResponse, AIOutput, ToolConfig, SurveyResponses, ArchetypeId, User } from '@/types';
 import Link from 'next/link';
@@ -24,6 +25,7 @@ export default function AdminAuditPage() {
   const [aiOutput, setAiOutput] = useState<AIOutput | null>(null);
   const [toolConfigs, setToolConfigs] = useState<Record<string, string | null>>({});
   const [userName, setUserName] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'dashboard' | 'raw'>('dashboard');
 
   useEffect(() => {
     loadAuditData();
@@ -178,10 +180,10 @@ export default function AdminAuditPage() {
             <p className="text-sm text-gray-600">
               {surveyResponse.completed_at
                 ? new Date(surveyResponse.completed_at).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })
                 : 'Unknown'}
             </p>
           </div>
@@ -198,57 +200,87 @@ export default function AdminAuditPage() {
           automationPotential={surveyResponse.automation_potential || 0}
         />
 
-        {/* Evolutionary Strategy & Skill Signature */}
-        <EvolutionaryStrategy
-          narrative={aiOutput?.narrative || 'AI-generated analysis has not been produced for this audit yet.'}
-          coreRecommendation={aiOutput?.core_recommendation || 'Pending generation.'}
-          onExploreToolkit={aiOutput?.toolkit_recommendations?.toolkit ? scrollToToolkit : undefined}
-        >
-          <SkillSignature data={responses.q16_time_allocation || { creative: 25, production: 25, communication: 25, admin: 25 }} />
-        </EvolutionaryStrategy>
-
-        {/* Deep Insights Divider */}
-        <div className="flex items-center gap-4 py-4">
-          <div className="flex-1 h-px bg-gray-200" />
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Deep Insights & Data</span>
-          <div className="flex-1 h-px bg-gray-200" />
+        {/* View Toggle */}
+        <div className="flex justify-center mt-6 mb-2">
+          <div className="bg-gray-100 p-1 rounded-xl inline-flex">
+            <button
+              onClick={() => setViewMode('dashboard')}
+              className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'dashboard'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-900'
+                }`}
+            >
+              Executive Insights
+            </button>
+            <button
+              onClick={() => setViewMode('raw')}
+              className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'raw'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-900'
+                }`}
+            >
+              Raw Responses
+            </button>
+          </div>
         </div>
 
-        {/* Evidence Layer */}
-        <EvidenceLayer responses={responses} />
+        {viewMode === 'dashboard' ? (
+          <>
+            {/* Evolutionary Strategy & Skill Signature */}
+            <EvolutionaryStrategy
+              narrative={aiOutput?.narrative || 'AI-generated analysis has not been produced for this audit yet.'}
+              coreRecommendation={aiOutput?.core_recommendation || 'Pending generation.'}
+              onExploreToolkit={aiOutput?.toolkit_recommendations?.toolkit ? scrollToToolkit : undefined}
+            >
+              <SkillSignature data={responses.q16_time_allocation || { creative: 25, production: 25, communication: 25, admin: 25 }} />
+            </EvolutionaryStrategy>
 
-        {/* AI-Generated Sections */}
-        {aiOutput?.automation_opportunities?.automations && (
-          <MagicButtonSection
-            automations={aiOutput.automation_opportunities.automations}
-            frictionContext={`Based on high friction in ${responses.q13_friction_types?.slice(0, 2).join(' and ').replace(/-/g, ' ')}, these tailored automations are designed to reclaim ${Math.round((surveyResponse.weekly_friction_hours || 0) * 0.2)} hours of weekly capacity.`}
-          />
-        )}
-
-        {aiOutput?.toolkit_recommendations?.toolkit && (
-          <ToolkitSection
-            toolkit={aiOutput.toolkit_recommendations.toolkit}
-            tutorialUrls={toolConfigs}
-          />
-        )}
-
-        {/* Placeholder when AI pipeline has not run for this response */}
-        {!aiOutput && (
-          <NeoCard className="p-8">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 neo-inset-circle flex items-center justify-center text-gray-400 flex-shrink-0">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-1">AI Recommendations Not Yet Generated</h4>
-                <p className="text-sm text-gray-500">
-                  The Magic Button automations and Curated Toolkit for this audit have not been generated yet. They will appear here once the AI pipeline has run for this response.
-                </p>
-              </div>
+            {/* Deep Insights Divider */}
+            <div className="flex items-center gap-4 py-4">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Deep Insights & Data</span>
+              <div className="flex-1 h-px bg-gray-200" />
             </div>
-          </NeoCard>
+
+            {/* Evidence Layer */}
+            <EvidenceLayer responses={responses} />
+
+            {/* AI-Generated Sections */}
+            {aiOutput?.automation_opportunities?.automations && (
+              <MagicButtonSection
+                automations={aiOutput.automation_opportunities.automations}
+                frictionContext={`Based on high friction in ${responses.q13_friction_types?.slice(0, 2).join(' and ').replace(/-/g, ' ')}, these tailored automations are designed to reclaim ${Math.round((surveyResponse.weekly_friction_hours || 0) * 0.2)} hours of weekly capacity.`}
+              />
+            )}
+
+            {aiOutput?.toolkit_recommendations?.toolkit && (
+              <ToolkitSection
+                toolkit={aiOutput.toolkit_recommendations.toolkit}
+                tutorialUrls={toolConfigs}
+              />
+            )}
+
+            {/* Placeholder when AI pipeline has not run for this response */}
+            {!aiOutput && (
+              <NeoCard className="p-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 neo-inset-circle flex items-center justify-center text-gray-400 flex-shrink-0">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">AI Recommendations Not Yet Generated</h4>
+                    <p className="text-sm text-gray-500">
+                      The Magic Button automations and Curated Toolkit for this audit have not been generated yet. They will appear here once the AI pipeline has run for this response.
+                    </p>
+                  </div>
+                </div>
+              </NeoCard>
+            )}
+          </>
+        ) : (
+          <RawResponsesView responses={responses} />
         )}
       </div>
     </div>

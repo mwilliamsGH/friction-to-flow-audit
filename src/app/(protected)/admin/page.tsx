@@ -280,8 +280,8 @@ export default function AdminDashboardPage() {
             {/* Recent Responses */}
             <NeoCard>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Responses</h3>
-              <div className="space-y-3">
-                {responses.slice(0, 5).map((response) => {
+              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                {responses.map((response) => {
                   const surveyResponses = response.responses as Record<string, unknown>;
                   const name = surveyResponses?.q1_name as string || 'Unknown';
                   const role = surveyResponses?.q3_role as string || '';
