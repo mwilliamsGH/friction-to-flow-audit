@@ -8,3 +8,8 @@ export { MagicButtonSection } from './magic-button-section';
 export { ToolkitSection } from './toolkit-section';
 export { Sidebar } from './sidebar';
 export * from './raw-responses-view';
+export { FrictionHeatmap } from './friction-heatmap';
+export { AIReadiness } from './ai-readiness';
+export { ROISimulator } from './roi-simulator';
+export { AIChampions } from './ai-champions';
+export { ProcessGaps } from './process-gaps';

@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase';
 import { NeoCard, NeoButton } from '@/components/ui';
-import { StatCard } from '@/components/dashboard';
+import { StatCard, FrictionHeatmap, AIReadiness, ROISimulator, AIChampions, ProcessGaps } from '@/components/dashboard';
 import { SurveyResponse, User } from '@/types';
 import { ARCHETYPES } from '@/lib/constants';
 import { BRAND_COLORS } from '@/lib/colors';
 import Link from 'next/link';
 
-type TabId = 'overview' | 'heatmap' | 'readiness';
+type TabId = 'overview' | 'heatmap' | 'readiness' | 'roi' | 'champions' | 'process-gaps';
 
 interface ResponseWithUser extends SurveyResponse {
   users?: User;
@@ -92,6 +92,9 @@ export default function AdminDashboardPage() {
     { id: 'overview' as TabId, label: 'Agency Overview', icon: '📊' },
     { id: 'heatmap' as TabId, label: 'Friction Heatmap', icon: '🔥' },
     { id: 'readiness' as TabId, label: 'AI Readiness', icon: '🤖' },
+    { id: 'roi' as TabId, label: 'ROI Simulator', icon: '💰' },
+    { id: 'champions' as TabId, label: 'AI Champions', icon: '🏆' },
+    { id: 'process-gaps' as TabId, label: 'Process Gaps', icon: '📋' },
   ];
 
   // Color palette for archetype distribution
@@ -318,33 +321,23 @@ export default function AdminDashboardPage() {
       )}
 
       {activeTab === 'heatmap' && (
-        <div className="space-y-8">
-          <NeoCard>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Friction Heatmap</h3>
-            <p className="text-gray-500">
-              Friction heatmap visualization showing top pain points across the agency.
-            </p>
-            {/* Placeholder for heatmap - would use aggregated Q13 data */}
-            <div className="mt-6 p-8 bg-gray-50 rounded-xl text-center text-gray-400">
-              Heatmap visualization coming soon
-            </div>
-          </NeoCard>
-        </div>
+        <FrictionHeatmap responses={responses} />
       )}
 
       {activeTab === 'readiness' && (
-        <div className="space-y-8">
-          <NeoCard>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">AI Readiness Overview</h3>
-            <p className="text-gray-500">
-              Team adoption curve and AI concerns summary.
-            </p>
-            {/* Placeholder for AI readiness charts */}
-            <div className="mt-6 p-8 bg-gray-50 rounded-xl text-center text-gray-400">
-              AI readiness charts coming soon
-            </div>
-          </NeoCard>
-        </div>
+        <AIReadiness responses={responses} />
+      )}
+
+      {activeTab === 'roi' && (
+        <ROISimulator responses={responses} />
+      )}
+
+      {activeTab === 'champions' && (
+        <AIChampions responses={responses} />
+      )}
+
+      {activeTab === 'process-gaps' && (
+        <ProcessGaps responses={responses} />
       )}
 
       {/* Export Button */}
